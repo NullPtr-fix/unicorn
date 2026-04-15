@@ -6,6 +6,7 @@ BUILD_DIR="${BUILD_DIR:-/tmp/unicorn-android-arm64-build}"
 INSTALL_DIR="${INSTALL_DIR:-/tmp/unicorn-android-arm64-install}"
 OUTPUT_DIR="${1:-${REPO_ROOT}/output/android-arm64}"
 NDK_PATH="${ANDROID_NDK:-${ANDROID_NDK_HOME:-}}"
+# Keep API 28 as default to match this repository's Android CI baseline.
 MIN_API="${ANDROID_NATIVE_API_LEVEL:-28}"
 PACKAGE_NAME="unicorn-android-arm64-static.tar.gz"
 
@@ -21,12 +22,14 @@ cmake -S "${REPO_ROOT}" -B "${BUILD_DIR}" \
   -DANDROID_ABI=arm64-v8a \
   -DANDROID_NATIVE_API_LEVEL="${MIN_API}" \
   -DBUILD_SHARED_LIBS=OFF \
+  -DUNICORN_BUILD_TESTS=OFF \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}"
 
 cmake --build "${BUILD_DIR}" --config Release
 cmake --install "${BUILD_DIR}" --config Release
 
-tar -C "${INSTALL_DIR}" -czf "${OUTPUT_DIR}/${PACKAGE_NAME}" .
+tar -C "${INSTALL_DIR}" -czf "${OUTPUT_DIR}/${PACKAGE_NAME}" lib include
 
+printf 'Android API level: %s\n' "${MIN_API}"
 printf 'Built package: %s\n' "${OUTPUT_DIR}/${PACKAGE_NAME}"
